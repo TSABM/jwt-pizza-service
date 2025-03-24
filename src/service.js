@@ -5,6 +5,7 @@ const franchiseRouter = require('./routes/franchiseRouter.js');
 const version = require('./version.json');
 const config = require('./config.js');
 const { getRequests, sendMetricsPeriodically } = require('./metrics.js');
+const logger = require('./logger.js')
 
 sendMetricsPeriodically(10000) //FIXME? start metric sending?
 
@@ -19,6 +20,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(getRequests)
+app.use(logger.httpLogger);
 
 
 const apiRouter = express.Router();
