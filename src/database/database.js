@@ -4,6 +4,7 @@ const config = require('../config.js');
 const { StatusCodeError } = require('../endpointHelper.js');
 const { Role } = require('../model/model.js');
 const dbModel = require('./dbModel.js');
+const logger = require('./../logger.js');
 class DB {
   constructor() {
     this.initialized = this.initializeDatabase();
@@ -284,9 +285,17 @@ class DB {
     return '';
   }
 
-  async query(connection, sql, params) {
-    const [results] = await connection.execute(sql, params);
-    return results;
+  async query(connection, sql, params) { //modify this to do logging for all my finctions
+    try{
+      const [results] = await connection.execute(sql, params);
+      logger.logDBRequests(sql)
+      return results;
+    }
+    catch(error){
+      //logger.logDBRequests(error, true);  // Logs the error message not the request
+      logger.logDBRequests(sql, true) //logs the request that failed and not the error message.
+      throw error; // Re-throw so calling code knows something went wrong
+    }
   }
 
   async getID(connection, key, value, table) {
