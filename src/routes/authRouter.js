@@ -4,6 +4,7 @@ const config = require('../config.js');
 const { asyncHandler } = require('../endpointHelper.js');
 const { DB, Role } = require('../database/database.js');
 const { incrementSuccessfulAuthAttempts, incrementFailedAuthAttempts, incrementActiveUsers, addLatency, decrementActiveUsers } = require('../metrics.js');
+//const logger = require('../logger.js');
 //const metrics = require("../metrics.js")
 
 const authRouter = express.Router();
@@ -102,7 +103,7 @@ authRouter.post(
 
     incrementSuccessfulAuthAttempts()
     incrementActiveUsers()
-    //logger.doLogging(details)
+    //logger.doLogging(details) //FIXME? I have middleware to cover http requests now...
     res.json({ user: user, token: auth });
   })
 );

@@ -92,34 +92,41 @@ orderRouter.post(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
-    const start = Date.now();
-    
-    const orderReq = req.body;
+    try{
+      const start = Date.now();
+      
+      const orderReq = req.body;
+      const orderInfo = { diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order }
+      const order = await DB.addDinerOrder(req.user, orderReq);
+        const r = await fetch(`${config.factory.url}/api/order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', authorization: `Bearer ${config.factory.apiKey}` },
+        body: JSON.stringify(orderInfo),
+      });
+      const j = await r.json();
 
-    const order = await DB.addDinerOrder(req.user, orderReq);
-      const r = await fetch(`${config.factory.url}/api/order`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${config.factory.apiKey}` },
-      body: JSON.stringify({ diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order }),
-    });
-    const j = await r.json();
-
-    const end = Date.now();
-    addLatency(end - start);
-    addPizzaLatency(end-start)
-    
-    if (r.ok) {
-      let totalPizzasOrdered = orderReq.items.length;//num of items in order
-      let costOfOrder = orderReq.items.reduce((sum, item) => sum + item.price, 0);//sum the costs of items
-      incrementPizzasMade(totalPizzasOrdered, costOfOrder);
-      logger.logFactoryRequest(req)
-      res.send({ order, reportSlowPizzaToFactoryUrl: j.reportUrl, jwt: j.jwt });
-    } else {
-      incrementFailedPizzas()
-      logger.logFactoryRequest(req, true)
-      res.status(500).send({ message: 'Failed to fulfill order at factory', reportPizzaCreationErrorToPizzaFactoryUrl: j.reportUrl });
+      const end = Date.now();
+      addLatency(end - start);
+      addPizzaLatency(end-start)
+      
+      if (r.ok) {
+        let totalPizzasOrdered = orderReq.items.length;//num of items in order
+        let costOfOrder = orderReq.items.reduce((sum, item) => sum + item.price, 0);//sum the costs of items
+        incrementPizzasMade(totalPizzasOrdered, costOfOrder);
+        logger.logFactoryRequest(orderInfo)
+        res.send({ order, reportSlowPizzaToFactoryUrl: j.reportUrl, jwt: j.jwt });
+      } else {
+        incrementFailedPizzas()
+        logger.logFactoryRequest(orderInfo, true)
+        res.status(500).send({ message: 'Failed to fulfill order at factory', reportPizzaCreationErrorToPizzaFactoryUrl: j.reportUrl });
+      }
+    }
+    catch(error){
+      console.error(error)
+      res.status(500).send("uncaught error in order")
     }
   })
+
 );
 
 module.exports = orderRouter;
