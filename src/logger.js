@@ -36,8 +36,12 @@ class Logger {
     this.log(level, 'Factory Request', request)
   }
 
-  logUnhandledRouterExeptions(){
-
+  logUnhandledRouterExeptions(exception, error = false){
+    let level = this.statusToLogLevel()
+    if (error != false){
+        level = this.statusToLogLevel(500) //fixme hardcoding 500 for simplicity to reuse the http focused function. a more dynamic function might be better
+    }
+    this.log(level, 'Exception', exception)
   }
 
   log(level, type, logData) {
