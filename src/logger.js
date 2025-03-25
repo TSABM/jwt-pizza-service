@@ -2,6 +2,7 @@ const config = require('./config.js');
 
 class Logger {
   httpLogger = (req, res, next) => {
+    //console.log("httpLogger was hit")
     let send = res.send;
     res.send = (resBody) => {
       const logData = {
@@ -45,7 +46,7 @@ class Logger {
   }
 
   log(level, type, logData) {
-    const labels = { component: config.source, level: level, type: type };
+    const labels = { component: config.logging.source, level: level, type: type };
     const values = [this.nowString(), this.sanitize(logData)];
     const logEvent = { streams: [{ stream: labels, values: [values] }] };
 
@@ -68,6 +69,7 @@ class Logger {
   }
 
   sendLogToGrafana(event) {
+    console.log("sending log to grafana")
     const body = JSON.stringify(event);
     fetch(`${config.logging.url}`, {
       method: 'post',
