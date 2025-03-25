@@ -27,7 +27,7 @@ test('login', async () => {
 test("update user", async ()=>{
     let newEmail = 'new@email.com'
     let password = 'newpass'
-    //put request with path /api/auth/:userId
+    //put request with path /api/auth/:userId 
     const updateRes = (await request(app)
     .put(`/api/auth/${testUserID}`)
     .set('Authorization', `Bearer ${testUserAuthToken}`)
