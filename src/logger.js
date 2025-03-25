@@ -28,6 +28,18 @@ class Logger {
     this.log(level, 'SQL', SQLQuery)
   }
 
+  logFactoryRequest(request, error = false){
+    let level = this.statusToLogLevel()
+    if (error != false){
+        level = this.statusToLogLevel(500) //fixme hardcoding 500 for simplicity to reuse the http focused function. a more dynamic function might be better
+    }
+    this.log(level, 'Factory Request', request)
+  }
+
+  logUnhandledRouterExeptions(){
+
+  }
+
   log(level, type, logData) {
     const labels = { component: config.source, level: level, type: type };
     const values = [this.nowString(), this.sanitize(logData)];
