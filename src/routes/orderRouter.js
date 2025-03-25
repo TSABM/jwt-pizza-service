@@ -96,8 +96,8 @@ orderRouter.post(
       const start = Date.now();
       
       const orderReq = req.body;
-      const orderInfo = { diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order }
       const order = await DB.addDinerOrder(req.user, orderReq);
+      const orderInfo = { diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order }
         const r = await fetch(`${config.factory.url}/api/order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', authorization: `Bearer ${config.factory.apiKey}` },
@@ -122,8 +122,8 @@ orderRouter.post(
       }
     }
     catch(error){
-      console.error(error)
-      res.status(500).send("uncaught error in order")
+      console.log(error.message)
+      res.status(500).send({msg:"order error",err:error.message})
     }
   })
 
