@@ -102,7 +102,7 @@ authRouter.post(
 
     incrementSuccessfulAuthAttempts()
     incrementActiveUsers()
-    logger.doLogging(details)
+    //logger.doLogging(details)
     res.json({ user: user, token: auth });
   })
 );
