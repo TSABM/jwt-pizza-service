@@ -117,7 +117,7 @@ orderRouter.post(
         res.send({ order, reportSlowPizzaToFactoryUrl: j.reportUrl, jwt: j.jwt });
       } else {
         incrementFailedPizzas()
-        logger.logFactoryRequest(r.message, true)
+        logger.logFactoryRequest(r.error, true)
         logger.logFactoryRequest(orderInfo, true)
         res.status(500).send({ message: 'Failed to fulfill order at factory', reportPizzaCreationErrorToPizzaFactoryUrl: j.reportUrl });
       }
