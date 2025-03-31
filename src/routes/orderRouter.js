@@ -101,7 +101,7 @@ orderRouter.post(
         const r = await fetch(`${config.factory.url}/api/order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', authorization: `Bearer ${config.factory.apiKey}` },
-        body: JSON.stringify({ diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order }),
+        body: JSON.stringify(orderInfo),
       });
       const j = await r.json();
 
@@ -117,6 +117,7 @@ orderRouter.post(
         res.send({ order, reportSlowPizzaToFactoryUrl: j.reportUrl, jwt: j.jwt });
       } else {
         incrementFailedPizzas()
+        logger.logFactoryRequest(r.message, true)
         logger.logFactoryRequest(orderInfo, true)
         res.status(500).send({ message: 'Failed to fulfill order at factory', reportPizzaCreationErrorToPizzaFactoryUrl: j.reportUrl });
       }
