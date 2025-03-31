@@ -69,7 +69,7 @@ class Logger {
   }
 
   sendLogToGrafana(event) {
-    console.log("sending log to grafana")
+    //console.log("sending log to grafana")
     const body = JSON.stringify(event);
     fetch(`${config.logging.url}`, {
       method: 'post',

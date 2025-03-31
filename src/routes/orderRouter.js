@@ -123,7 +123,7 @@ orderRouter.post(
       }
     }
     catch(error){
-      console.log(error.message)
+      //console.log(error.message)
       res.status(500).send({msg:"order error",err:error.message})
     }
   })
