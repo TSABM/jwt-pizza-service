@@ -92,7 +92,6 @@ orderRouter.post(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
-    try{
       const start = Date.now();
       
       const orderReq = req.body;
@@ -121,11 +120,6 @@ orderRouter.post(
         logger.logFactoryRequest(orderInfo, true)
         res.status(500).send({ message: 'Failed to fulfill order at factory', reportPizzaCreationErrorToPizzaFactoryUrl: j.reportUrl });
       }
-    }
-    catch(error){
-      //console.log(error.message)
-      res.status(500).send({msg:"order error",err:error.message})
-    }
   })
 
 );
