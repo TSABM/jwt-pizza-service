@@ -117,7 +117,7 @@ orderRouter.post(
       } else {
         incrementFailedPizzas()
         logger.logFactoryRequest(orderInfo, true)
-        res.status(500).send({ message: 'Failed to fulfill order at factory', reportPizzaCreationErrorToPizzaFactoryUrl: j.reportUrl, body: j, config });
+        res.status(500).send({ message: 'Failed to fulfill order at factory', reportPizzaCreationErrorToPizzaFactoryUrl: j.reportUrl });
       }
   })
 
