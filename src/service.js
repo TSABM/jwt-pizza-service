@@ -4,10 +4,10 @@ const orderRouter = require('./routes/orderRouter.js');
 const franchiseRouter = require('./routes/franchiseRouter.js');
 const version = require('./version.json');
 const config = require('./config.js');
-const { getRequests, sendMetricsPeriodically } = require('./metrics.js');
+const Metrics = require('./metrics.js');
 const logger = require('./logger.js')
 
-sendMetricsPeriodically(10000) //FIXME? start metric sending?
+Metrics.sendMetricsPeriodically(10000) //FIXME? start metric sending?
 
 const app = express();
 app.use(express.json());
@@ -21,7 +21,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(logger.httpLogger);
-app.use(getRequests);
+app.use(Metrics.getRequests);
 
 const apiRouter = express.Router();
 app.use('/api', apiRouter);

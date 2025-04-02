@@ -3,7 +3,7 @@ const config = require('../config.js');
 const { Role, DB } = require('../database/database.js');
 const { authRouter } = require('./authRouter.js');
 const { asyncHandler, StatusCodeError } = require('../endpointHelper.js');
-const { incrementPizzasMade, incrementFailedPizzas, addPizzaLatency, addLatency } = require('../metrics.js');
+const Metrics = require('../metrics.js');
 const logger = require('../logger.js')
 
 const orderRouter = express.Router();
@@ -49,7 +49,7 @@ orderRouter.get(
     const start = Date.now();
     const menu = await DB.getMenu();
     const end = Date.now();
-    addLatency(end - start);
+    Metrics.addLatency(end - start);
     res.send(menu);
   })
 );
@@ -69,7 +69,7 @@ orderRouter.put(
     await DB.addMenuItem(addMenuItemReq);
     const menu = await DB.getMenu();
     const end = Date.now();
-    addLatency(end - start);
+    Metrics.addLatency(end - start);
     res.send(menu);
   })
 );
@@ -82,7 +82,7 @@ orderRouter.get(
     const start = Date.now();
     const orders = await DB.getOrders(req.user, req.query.page);
     const end = Date.now();
-    addLatency(end - start);
+    Metrics.addLatency(end - start);
     res.json(orders);
   })
 );
@@ -105,17 +105,17 @@ orderRouter.post(
       const j = await r.json();
 
       const end = Date.now();
-      addLatency(end - start);
-      addPizzaLatency(end-start)
+      Metrics.addLatency(end - start);
+      Metrics.addPizzaLatency(end-start)
       
       if (r.ok) {
         let totalPizzasOrdered = orderReq.items.length;//num of items in order
         let costOfOrder = orderReq.items.reduce((sum, item) => sum + item.price, 0);//sum the costs of items
-        incrementPizzasMade(totalPizzasOrdered, costOfOrder);
+        Metrics.incrementPizzasMade(totalPizzasOrdered, costOfOrder);
         logger.logFactoryRequest(orderInfo)
         res.send({ order, reportSlowPizzaToFactoryUrl: j.reportUrl, jwt: j.jwt });
       } else {
-        incrementFailedPizzas()
+        Metrics.incrementFailedPizzas()
         logger.logFactoryRequest(orderInfo, true)
         res.status(500).send({ message: 'Failed to fulfill order at factory', reportPizzaCreationErrorToPizzaFactoryUrl: j.reportUrl });
       }
