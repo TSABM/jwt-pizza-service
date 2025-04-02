@@ -2,95 +2,93 @@ const config = require('./config');
 const os = require('os');
 
 class Metrics {
-    constructor() {
-        this.requestsByMethod = { GET: 0, POST: 0, DELETE: 0, PUT: 0 };
-        this.activeUsers = 0;
-        this.successfulAuthAttempts = 0;
-        this.failedAuthAttempts = 0;
-        this.pizzasMade = 0;
-        this.totalPrice = 0;
-        this.pizzaCreationFails = 0;
-        this.generalLatency = 0;
-        this.pizzaLatency = 0;
-    }
+    static requestsByMethod = { GET: 0, POST: 0, DELETE: 0, PUT: 0 };
+    static activeUsers = 0;
+    static successfulAuthAttempts = 0;
+    static failedAuthAttempts = 0;
+    static pizzasMade = 0;
+    static totalPrice = 0;
+    static pizzaCreationFails = 0;
+    static generalLatency = 0;
+    static pizzaLatency = 0;
 
-    getRequests(req, res, next) {
+    static getRequests(req, res, next) {
         let requestMethod = req.method.toUpperCase();
-        if (requestMethod in this.requestsByMethod) {
-            this.requestsByMethod[requestMethod] += 1;
+        if (requestMethod in Metrics.requestsByMethod) {
+            Metrics.requestsByMethod[requestMethod] += 1;
         }
         next();
     }
 
-    incrementActiveUsers() {
-        this.activeUsers += 1;
+    static incrementActiveUsers() {
+        Metrics.activeUsers += 1;
     }
 
-    decrementActiveUsers() {
-        this.activeUsers -= 1;
+    static decrementActiveUsers() {
+        Metrics.activeUsers -= 1;
     }
 
-    incrementSuccessfulAuthAttempts() {
-        this.successfulAuthAttempts += 1;
+    static incrementSuccessfulAuthAttempts() {
+        Metrics.successfulAuthAttempts += 1;
     }
 
-    incrementFailedAuthAttempts() {
-        this.failedAuthAttempts += 1;
+    static incrementFailedAuthAttempts() {
+        Metrics.failedAuthAttempts += 1;
     }
 
-    getCpuUsagePercentage() {
+    static getCpuUsagePercentage() {
         const cpuUsage = os.loadavg()[0] / os.cpus().length;
         return (cpuUsage * 100).toFixed(2);
     }
 
-    getMemoryUsagePercentage() {
+    static getMemoryUsagePercentage() {
         const totalMemory = os.totalmem();
         const freeMemory = os.freemem();
         const usedMemory = totalMemory - freeMemory;
         return ((usedMemory / totalMemory) * 100).toFixed(2);
     }
 
-    incrementPizzasMade(pizzasSold, orderPrice) {
-        this.pizzasMade += pizzasSold;
-        this.totalPrice += orderPrice;
+    static incrementPizzasMade(pizzasSold, orderPrice) {
+        Metrics.pizzasMade += pizzasSold;
+        Metrics.totalPrice += orderPrice;
     }
 
-    incrementFailedPizzas() {
-        this.pizzaCreationFails += 1;
+    static incrementFailedPizzas() {
+        Metrics.pizzaCreationFails += 1;
     }
 
-    addLatency(latency) {
-        this.generalLatency += latency;
+    static addLatency(latency) {
+        Metrics.generalLatency += latency;
     }
 
-    addPizzaLatency(latency) {
-        this.pizzaLatency += latency;
+    static addPizzaLatency(latency) {
+        Metrics.pizzaLatency += latency;
     }
 
-    sendMetricsPeriodically(period) {
+    static sendMetricsPeriodically(period) {
         setInterval(() => {
             try {
-                this.sendMetricToGrafana("requests_GET", this.requestsByMethod.GET, "sum", '1');
-                this.sendMetricToGrafana("requests_POST", this.requestsByMethod.POST, "sum", '1');
-                this.sendMetricToGrafana("requests_DELETE", this.requestsByMethod.DELETE, "sum", '1');
-                this.sendMetricToGrafana("requests_PUT", this.requestsByMethod.PUT, "sum", '1');
-                this.sendMetricToGrafana("active_users", this.activeUsers, "sum", '1');
-                this.sendMetricToGrafana("auth_success", this.successfulAuthAttempts, "sum", '1');
-                this.sendMetricToGrafana("auth_failed", this.failedAuthAttempts, "sum", '1');
-                this.sendMetricToGrafana("cpu_usage", this.getCpuUsagePercentage(), "gauge", '%');
-                this.sendMetricToGrafana("memory_usage", this.getMemoryUsagePercentage(), "gauge", '%');
-                this.sendMetricToGrafana("pizzas_sold", this.pizzasMade, "sum", '1');
-                this.sendMetricToGrafana("revenue", this.totalPrice, "sum", '$');
-                this.sendMetricToGrafana("pizza_fails", this.pizzaCreationFails, "sum", '1');
-                this.sendMetricToGrafana("general_latency", this.generalLatency, "sum", 'ms');
-                this.sendMetricToGrafana("pizza_latency", this.pizzaLatency, "sum", 'ms');
+                Metrics.sendMetricToGrafana("requests_GET", Metrics.requestsByMethod.GET, "sum", '1');
+                Metrics.sendMetricToGrafana("requests_POST", Metrics.requestsByMethod.POST, "sum", '1');
+                Metrics.sendMetricToGrafana("requests_DELETE", Metrics.requestsByMethod.DELETE, "sum", '1');
+                Metrics.sendMetricToGrafana("requests_PUT", Metrics.requestsByMethod.PUT, "sum", '1');
+                Metrics.sendMetricToGrafana("active_users", Metrics.activeUsers, "sum", '1');
+                Metrics.sendMetricToGrafana("auth_success", Metrics.successfulAuthAttempts, "sum", '1');
+                Metrics.sendMetricToGrafana("auth_failed", Metrics.failedAuthAttempts, "sum", '1');
+                Metrics.sendMetricToGrafana("cpu_usage", Metrics.getCpuUsagePercentage(), "gauge", '%');
+                Metrics.sendMetricToGrafana("memory_usage", Metrics.getMemoryUsagePercentage(), "gauge", '%');
+                Metrics.sendMetricToGrafana("pizzas_sold", Metrics.pizzasMade, "sum", '1');
+                Metrics.sendMetricToGrafana("revenue", Metrics.totalPrice, "sum", '$');
+                Metrics.sendMetricToGrafana("pizza_fails", Metrics.pizzaCreationFails, "sum", '1');
+                Metrics.sendMetricToGrafana("general_latency", Metrics.generalLatency, "sum", 'ms');
+                Metrics.sendMetricToGrafana("pizza_latency", Metrics.pizzaLatency, "sum", 'ms');
             } catch (error) {
                 console.log('Error sending metrics', error);
             }
         }, period);
     }
 
-    sendMetricToGrafana(metricName, metricValue, type, unit) {
+    static sendMetricToGrafana(metricName, metricValue, type, unit) {
         const metric = {
             resourceMetrics: [
                 {
