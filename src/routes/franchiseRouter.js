@@ -2,7 +2,7 @@ const express = require('express');
 const { DB, Role } = require('../database/database.js');
 const { authRouter } = require('./authRouter.js');
 const { StatusCodeError, asyncHandler } = require('../endpointHelper.js');
-const Metrics = require('../metrics.js');
+const metrics = require('../metrics.js');
 const logger = require('../logger.js');
 
 const franchiseRouter = express.Router();
@@ -66,7 +66,7 @@ franchiseRouter.get(
     const result = await DB.getFranchises(req.user);
     
     const end = new Date();
-    Metrics.addLatency(end - start);
+    metrics.addLatency(end - start);
     
     res.json(result);
   })
@@ -86,7 +86,7 @@ franchiseRouter.get(
     }
     
     const end = new Date();
-    Metrics.addLatency(end - start);
+    metrics.addLatency(end - start);
     
     res.json(result);
   })
@@ -109,7 +109,7 @@ franchiseRouter.post(
     const createdFranchise = await DB.createFranchise(franchise);
     
     const end = new Date();
-    Metrics.addLatency(end - start);
+    metrics.addLatency(end - start);
     
     res.json(createdFranchise);
   })
@@ -131,7 +131,7 @@ franchiseRouter.delete(
     await DB.deleteFranchise(franchiseId);
     
     const end = new Date();
-    Metrics.addLatency(end - start);
+    metrics.addLatency(end - start);
     
     res.json({ message: 'franchise deleted' });
   })
@@ -155,7 +155,7 @@ franchiseRouter.post(
     const store = await DB.createStore(franchise.id, req.body);
     
     const end = new Date();
-    Metrics.addLatency(end - start);
+    metrics.addLatency(end - start);
     
     res.json(store);
   })
@@ -180,7 +180,7 @@ franchiseRouter.delete(
     await DB.deleteStore(franchiseId, storeId);
     
     const end = new Date();
-    Metrics.addLatency(end - start);
+    metrics.addLatency(end - start);
     
     res.json({ message: 'store deleted' });
   })

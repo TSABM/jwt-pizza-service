@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config.js');
 const { asyncHandler } = require('../endpointHelper.js');
 const { DB, Role } = require('../database/database.js');
-const Metrics = require('../metrics.js');
+const metrics = require('../metrics.js');
 //const logger = require('../logger.js');
 //const metrics = require("../metrics.js")
 
@@ -91,7 +91,7 @@ authRouter.post(
     //Logger.httpLogger(req, res) //maybe taken care of elsewhere?
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
-      Metrics.incrementFailedAuthAttempts()
+      metrics.incrementFailedAuthAttempts()
       return res.status(400).json({ message: 'name, email, and password are required' });
     }
     const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
@@ -99,10 +99,10 @@ authRouter.post(
     const end = new Date()
 
     const latency = end - start
-    Metrics.addLatency(latency)
+    metrics.addLatency(latency)
 
-    Metrics.incrementSuccessfulAuthAttempts()
-    Metrics.incrementActiveUsers()
+    metrics.incrementSuccessfulAuthAttempts()
+    metrics.incrementActiveUsers()
     //logger.doLogging(details) //FIXME? I have middleware to cover http requests now...
     res.json({ user: user, token: auth });
   })
@@ -117,15 +117,15 @@ authRouter.put(
     const user = await DB.getUser(email, password);
     if (!user) {
       //console.log("reached invalid credential state")
-      Metrics.incrementFailedAuthAttempts();
+      metrics.incrementFailedAuthAttempts();
       return res.status(401).json({ message: 'Invalid credentials' });
     }
     const auth = await setAuth(user);
     const end = new Date();
     const latency = end - start;
-    Metrics.addLatency(latency);
-    Metrics.incrementSuccessfulAuthAttempts();
-    Metrics.incrementActiveUsers();
+    metrics.addLatency(latency);
+    metrics.incrementSuccessfulAuthAttempts();
+    metrics.incrementActiveUsers();
     res.json({ user: user, token: auth });
   })
 );
@@ -139,8 +139,8 @@ authRouter.delete(
     await clearAuth(req);
     const end = new Date();
     const latency = end - start;
-    Metrics.addLatency(latency);
-    Metrics.decrementActiveUsers();
+    metrics.addLatency(latency);
+    metrics.decrementActiveUsers();
     res.json({ message: 'logout successful' });
   })
 );
@@ -162,7 +162,7 @@ authRouter.put(
 
     const end = new Date();
     const latency = end - start;
-    Metrics.addLatency(latency);
+    metrics.addLatency(latency);
 
     res.json(updatedUser);
   })
